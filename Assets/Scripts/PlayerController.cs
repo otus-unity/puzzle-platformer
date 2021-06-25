@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,9 +16,33 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Collider2D m_groundDetector;
     [SerializeField] LayerMask m_groundLayers;
 
+    [SerializeField] TextMeshProUGUI m_starsText;
+
+    [SerializeField] ParticleSystem m_blood;
+
+    int m_starsCollected;
+
     void Start()
     {
         m_rigidbody2D = GetComponent<Rigidbody2D>();
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Star") {
+            //collision.gameObject.SendMessage("OnCollect");
+            if (collision.TryGetComponent<StarController>(out var star)) {
+                if (!star.Collected) {
+                    m_starsCollected++;
+                    m_starsText.text = m_starsCollected.ToString();
+                    star.OnCollect();
+                }
+            }
+        }
+
+        if (collision.tag == "Damage") {
+            m_blood.Play();
+        }
     }
 
     void Update()
